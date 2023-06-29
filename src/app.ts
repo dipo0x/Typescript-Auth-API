@@ -1,6 +1,9 @@
+import helmet from "@fastify/helmet";
 import fastify from 'fastify';
-const uuidv4 = require('uuid').v4;
 import dotenv from 'dotenv';
+import cors from '@fastify/cors'
+
+const uuidv4 = require('uuid').v4;
 dotenv.config();
 
 export const port = Number(process.env.PORT) || 3000;
@@ -15,6 +18,19 @@ export const server = fastify({
 server.get('/healthcheck', async function () {
   return { status: 'Ok' };
 });
+
+server.register(
+  helmet, ({
+    contentSecurityPolicy: false,
+    xDownloadOptions: false,
+  })
+);
+
+server.decorateReply('removePoweredByHeader', function () {
+  this.header('x-powered-by', '');
+});
+
+server.register(cors, {})
 
 async function main() {
   server.setErrorHandler(async (err, request, reply) => {
