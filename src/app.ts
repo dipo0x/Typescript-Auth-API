@@ -2,6 +2,9 @@ import helmet from "@fastify/helmet";
 import fastify from 'fastify';
 import dotenv from 'dotenv';
 import cors from '@fastify/cors'
+import connectToDatabase from "./config/database";
+import AuthRoutes from './modules/auth/auth.route';
+import logger from "./log/logger";
 
 const uuidv4 = require('uuid').v4;
 dotenv.config();
@@ -33,6 +36,11 @@ server.decorateReply('removePoweredByHeader', function () {
 server.register(cors, {})
 
 async function main() {
+  server.addHook('preHandler', (request, reply, done) => {
+    logger.info(`Request received: ${request.method} ${request.url}`);
+    done();
+  });
+  
   server.setErrorHandler(async (err, request, reply) => {
     return reply.code(500).send({
       status: 500,
@@ -47,8 +55,8 @@ async function main() {
         message: 'Page does not exist',
       });
     });
-
-
+    server.register(AuthRoutes, { prefix: 'api/auth/' });
+    await connectToDatabase()
   try {
     await server.listen({ port: port });
     console.log('Server ready on port', port);
