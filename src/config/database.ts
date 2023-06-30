@@ -13,4 +13,4 @@ async function connectToDatabase() {
   }
 }
 
-export default connectToDatabase
+export { connectToDatabase, prisma };
