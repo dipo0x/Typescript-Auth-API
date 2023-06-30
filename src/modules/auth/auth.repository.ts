@@ -14,13 +14,29 @@ const service = {
     });
     return user;
   },
-  async getAuthByUserId(userId: string) {
-    if (!userId) {
+  async findUserByEmail(email: string) {
+    if (!email) {
       return null;
     }
-    const auth = await prisma.auth.findUnique({
-      where: { userId: userId },
+    const user = await prisma.user.findUnique({
+      where: { email: email },
     });
+    return user;
+  },
+
+  async findAuthByEmail(email: string) {
+    if (!email) {
+      return null;
+    }
+    const user = await prisma.user.findUnique({
+      where: { email: email },
+    });
+    if(!user){
+      return null
+    }
+    const auth = await prisma.auth.findUnique({
+      where: { userId: user.id }
+    })
     return auth;
   },
 };

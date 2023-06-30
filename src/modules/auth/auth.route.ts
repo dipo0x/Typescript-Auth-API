@@ -4,8 +4,7 @@ import AuthController from './auth.controller';
 
 async function userRoutes(server: FastifyInstance) {
   server.post('/register/', AuthController.registerUserHandler);
-
-  //   server.post('/login', AuthController.loginUserHandler);
+  server.post('/login', AuthController.loginUserHandler);
 }
 
 export default userRoutes;

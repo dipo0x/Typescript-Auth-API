@@ -3,6 +3,7 @@ import fastify from 'fastify';
 import dotenv from 'dotenv';
 import cors from '@fastify/cors';
 import { connectToDatabase } from './config/database';
+import connectToRedis from './config/redis'
 import AuthRoutes from './modules/auth/auth.route';
 import logger from './log/logger';
 
@@ -12,7 +13,7 @@ dotenv.config();
 export const port = Number(process.env.PORT) || 3000;
 
 export const server = fastify({
-  logger: true,
+  logger: false,
   genReqId(req) {
     return uuidv4();
   },
@@ -54,8 +55,10 @@ async function main() {
       });
     });
   server.register(AuthRoutes, { prefix: 'api/auth/' });
-  await connectToDatabase();
+
   try {
+    await connectToDatabase();
+    await connectToRedis();
     await server.listen({ port: port });
     console.log('Server ready on port', port);
   } catch (e) {
