@@ -1,4 +1,6 @@
+import { AuthRoot } from 'authRoot';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 const token = {
   async hashPassword(password: string) {
@@ -7,6 +9,12 @@ const token = {
   async comparePasswords(candidatePassword: string, userPassword: string) {
     const isMatch = await bcrypt.compare(candidatePassword, userPassword);
     return isMatch;
+  },
+  async signToken(authUser: AuthRoot) {
+    const token = jwt.sign({ id: authUser.id?.toString() }, `${process.env.AccessTokenKey}`, {
+      expiresIn: `${process.env.accessTokenExpiresIn}m`,
+    });
+    return token;
   },
 };
 

@@ -4,7 +4,6 @@ import service from './auth.service';
 import redisService from '../../services/redis.service';
 import repository from './auth.repository';
 import token from '../../utils/token.util';
-import redisRepo from '../../repository/redis.repository'
 
 const auth = {
   async registerUserHandler(
@@ -66,6 +65,16 @@ const auth = {
         const data = await redisService.createTempLock(auth.id)
         ApiError(400, `Incorrect password. You have ${data} chance(s) left.`, reply);
       }
+      const access_token = await token.signToken(auth);
+      const user = await repository.findUserByEmail(email)
+      return reply.code(200).send({
+        status: 200,
+        success: true,
+        message: {
+          user,
+          access_token,
+        },
+      });
     }
     catch (err) {
       console.log(err)
