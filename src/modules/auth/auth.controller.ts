@@ -1,8 +1,10 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import ApiError from '../../errors/ApiErrorHandler';
 import service from './auth.service';
+import redisService from '../../services/redis.service';
 import repository from './auth.repository';
 import token from '../../utils/token.util';
+import redisRepo from '../../repository/redis.repository'
 
 const auth = {
   async registerUserHandler(
@@ -49,19 +51,20 @@ const auth = {
       const body = request.body;
       let { email, password } = body;
       if (!email?.trim() || !password?.trim()) {
-        ApiError(400, 'All fields are required', reply);
+        return ApiError(400, 'All fields are required', reply);
       }
       const auth = await repository.findAuthByEmail(email)
       if(!auth){
-        ApiError(404, 'Invalid credentials', reply);
+        return ApiError(404, 'Invalid credentials', reply);
       }
-      const user = await repository.findUserByEmail(email)
-      if(user.isActive == false){
-        ApiError(409, 'Your account is temporarily locked. Please contact support', reply);
+      const isLocked = await redisService.getValue(auth.id)
+      if(isLocked == 1){
+        return ApiError(409, 'Your account is temporarily locked. Please contact support', reply);
       }
       const isCorrectPassword = await token.comparePasswords(password, auth.password)
       if(!isCorrectPassword){
-        ApiError(400, 'Invalid credentials', reply);
+        const data = await redisService.createTempLock(auth.id)
+        ApiError(400, `Incorrect password. You have ${data} chance(s) left.`, reply);
       }
     }
     catch (err) {

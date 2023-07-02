@@ -3,7 +3,6 @@ import fastify from 'fastify';
 import dotenv from 'dotenv';
 import cors from '@fastify/cors';
 import { connectToDatabase } from './config/database';
-import connectToRedis from './config/redis'
 import AuthRoutes from './modules/auth/auth.route';
 import logger from './log/logger';
 
@@ -58,7 +57,6 @@ async function main() {
 
   try {
     await connectToDatabase();
-    await connectToRedis();
     await server.listen({ port: port });
     console.log('Server ready on port', port);
   } catch (e) {
