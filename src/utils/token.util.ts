@@ -11,7 +11,7 @@ const token = {
     return isMatch;
   },
   async signToken(authUser: AuthRoot) {
-    const token = jwt.sign({ id: authUser.id?.toString() }, `${process.env.AccessTokenKey}`, {
+    const token = jwt.sign({ id: authUser.id.toString() }, `${process.env.AccessTokenKey}`, {
       expiresIn: `${process.env.accessTokenExpiresIn}m`,
     });
     return token;

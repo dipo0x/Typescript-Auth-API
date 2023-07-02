@@ -39,6 +39,18 @@ const service = {
     })
     return auth;
   },
+  async findAuthById(id: string) {
+    if (!id) {
+      return null;
+    }
+    const auth = await prisma.auth.findUnique({
+      where: { id: id },
+    });
+    if(!auth){
+      return null
+    }
+    return auth;
+  },
 };
 
 export default service;

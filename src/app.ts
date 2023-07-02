@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from '@fastify/cors';
 import { connectToDatabase } from './config/database';
 import AuthRoutes from './modules/auth/auth.route';
+import UserRoutes from './modules/user/user.route';
 import logger from './log/logger';
 
 const uuidv4 = require('uuid').v4;
@@ -46,13 +47,14 @@ async function main() {
       message: 'Something went wrong',
     });
   }),
-    server.setNotFoundHandler(async (request, reply) => {
-      return reply.code(404).send({
-        status: 404,
-        success: false,
-        message: 'Page does not exist',
-      });
+  server.setNotFoundHandler(async (request, reply) => {
+    return reply.code(404).send({
+      status: 404,
+      success: false,
+      message: 'Page does not exist',
     });
+  });
+  server.register(UserRoutes, { prefix: 'api/user/' });
   server.register(AuthRoutes, { prefix: 'api/auth/' });
 
   try {
